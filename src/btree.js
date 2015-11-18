@@ -6,13 +6,12 @@ function BTree(minDegree) {
 
 BTree.prototype.insert = function(key) {
     if (this.root.isFull()) {
-        var oldRoot = this.root;
         var newRoot = new BTreeNode(this);
-        this.root = newRoot;
 
         // TODO: make sure the child has its parent updated after split
-        this.root.children = [oldRoot];
-        this.root.splitChild(0);
+        newRoot.children = [this.root];
+        newRoot.splitChild(0);
+        this.root = newRoot;
     }
 
     this.root.insertNonFull(key);
@@ -43,6 +42,7 @@ BTreeNode.prototype.search = function(key) {
 };
 
 BTreeNode.prototype.insertNonFull = function(key) {
+    assert(!this.isFull(), "this node should not be full");
     var i;
     if (this.isLeaf()) {
         i = this.keys.length - 1;
@@ -78,17 +78,25 @@ BTreeNode.prototype.splitChild = function(childIndex) {
         this.keys[i + 1] = this.keys[i];
         i--;
     }
+    this.keys[childIndex] = left.keys[this.tree.minDegree - 1];
 
-    this.keys[i] = left.keys[this.tree.minDegree - 1];
+    // Insert right child to this node
+    i = this.children.length - 1;
+    while (i >= childIndex + 1) {
+        this.children[i + 1] = this.children[i];
+        i--;
+    }
+    this.children[childIndex + 1] = right;
 
     // copy keys to right child
     for (i = 0; i < this.tree.minDegree - 1; i++) {
         right.keys[i] = left.keys[i + this.tree.minDegree];
     }
 
-    // delete copied keys in left child
-    left.keys.splice(this.tree.minDegree /* position to remove */,
-                     this.tree.minDegree - 1 /* number of keys to remove */);
+    // delete copied keys in left child. This includes 1 key copied to the parent and
+    // minDegree - 1 keys copied to the right child.
+    left.keys.splice(this.tree.minDegree -1 /* position to remove */,
+                     this.tree.minDegree /* number of keys to remove */);
 
     if (!left.isLeaf()) {
         // copy children to right child
@@ -106,4 +114,3 @@ BTreeNode.prototype.splitChild = function(childIndex) {
 };
 
 module.exports.BTree = BTree;
-module.exports.BTreeNode = BTreeNode;
