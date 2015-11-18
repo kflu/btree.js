@@ -36,7 +36,7 @@ BTreeNode.prototype.getDegree = function() {
 BTreeNode.prototype.search = function(key) {
     var i = 0;
     while (i <= this.keys.length - 1 && key > this.keys[i]) i++;
-    if (i <= tihs.keys.length - 1 && key === this.keys[i]) return this.keys[i];
+    if (i <= this.keys.length - 1 && key === this.keys[i]) return this.keys[i];
     if (this.isLeaf()) return null;
     return this.children[i].search(key);
 };

@@ -1,3 +1,5 @@
+var fs = require('fs');
+var path = require('path');
 var util = require('util');
 var BTree = require('../btree.js').BTree;
 var assert = require('assert');
@@ -34,4 +36,31 @@ describe('BTree', function() {
 
     // insert 3
     it('should not be full', function() { assert.strictEqual(t.root.isFull(), false); });
+});
+
+describe('Populating BTree', function() {
+    var tree = new BTree(2);
+
+    it('can populate large corpus', function(done) {
+        fs.readFile(path.join(__dirname, './shakespeare.txt'), {encoding: 'utf8'}, function(err, data) {
+            if (err) {
+                throw err;
+            }
+
+            data = data.slice(0, 10000);
+            var words = data.replace(/\r\n/g, " ").split(" ").filter(function(word) { return word !== ''; });
+            console.log(words.length + " words to insert");
+
+            words.forEach(function(w) {
+                tree.insert(w);
+            });
+
+            done();
+        });
+    });
+
+    it('can find inserted keys', function() {
+        var key = tree.root.search('his');
+        assert(key === 'his');
+    });
 });
