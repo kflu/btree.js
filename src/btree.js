@@ -20,6 +20,10 @@ BTree.prototype.insert = function(key, payload) {
     this.root.insertNonFull(key, payload);
 };
 
+BTree.prototype.search = function(key) {
+    return this.root.search(key);
+};
+
 /**
  * BTree node constructor
  * @param {BTree} tree the btree containing this node
@@ -55,12 +59,17 @@ BTreeNode.prototype.search = function(key) {
     return this.children[i].search(key);
 };
 
+/**
+ * Insert. If the key is equal to an existing key, the new key
+ * is always inserted _before_ the existing key.
+ *
+ */
 BTreeNode.prototype.insertNonFull = function(key, payload) {
     assert(!this.isFull(), "this node should not be full");
     var i;
     if (this.isLeaf()) {
         i = this.data.length - 1;
-        while (i >= 0 && key < this.data[i].key) {
+        while (i >= 0 && key <= this.data[i].key) {
             this.data[i + 1] = this.data[i];
             i--;
         }
@@ -174,7 +183,7 @@ Cursor.prototype.moveNext = function() {
                     current = current.parent;
                 }
             }
-            
+
             // There is no larger key in the tree.
             return false;
         } else {
