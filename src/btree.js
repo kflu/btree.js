@@ -1,26 +1,35 @@
 var assert = require('assert');
 function BTree(minDegree) {
     this.minDegree = minDegree;
-    this.root = new BTreeNode(this);
+    this.root = new BTreeNode(this, null);
 }
 
-BTree.prototype.insert = function(key) {
+BTree.prototype.insert = function(key, payload) {
     if (this.root.isFull()) {
-        var newRoot = new BTreeNode(this);
-
-        // TODO: make sure the child has its parent updated after split
+        // create a new root. Properly update the parent-child
+        // relationship between the new and old root, and update
+        // the tree root reference.
+        var newRoot = new BTreeNode(this, null);
         newRoot.children = [this.root];
-        newRoot.splitChild(0);
+        this.root.parent = newRoot;
         this.root = newRoot;
+
+        newRoot.splitChild(0);
     }
 
-    this.root.insertNonFull(key);
+    this.root.insertNonFull(key, payload);
 };
 
-function BTreeNode(tree) {
+/**
+ * BTree node constructor
+ * @param {BTree} tree the btree containing this node
+ * @param {BTreeNode} parent the parent of this node
+ */
+function BTreeNode(tree, parent) {
     this.tree = tree;
-    this.keys = [];
+    this.data = [];
     this.children = [];
+    this.parent = parent;
 }
 
 BTreeNode.prototype.isRoot = function() { return this.tree.root === this; };
@@ -28,37 +37,42 @@ BTreeNode.prototype.isFull = function() { return this.getDegree() === this.tree.
 BTreeNode.prototype.isLeaf = function() { return this.children.length === 0; };
 
 BTreeNode.prototype.getDegree = function() {
-    var n = this.keys.length + 1;
+    var n = this.data.length + 1;
     if (!this.isLeaf()) assert.strictEqual(this.children.length, n, "Children length unexpected");
     return n;
 };
 
+/**
+ * search for a key
+ *
+ * @return {Cursor} the cursor pointing to the first key found
+ */
 BTreeNode.prototype.search = function(key) {
     var i = 0;
-    while (i <= this.keys.length - 1 && key > this.keys[i]) i++;
-    if (i <= this.keys.length - 1 && key === this.keys[i]) return this.keys[i];
+    while (i <= this.data.length - 1 && key > this.data[i].key) i++;
+    if (i <= this.data.length - 1 && key === this.data[i].key) return new Cursor(this, i);
     if (this.isLeaf()) return null;
     return this.children[i].search(key);
 };
 
-BTreeNode.prototype.insertNonFull = function(key) {
+BTreeNode.prototype.insertNonFull = function(key, payload) {
     assert(!this.isFull(), "this node should not be full");
     var i;
     if (this.isLeaf()) {
-        i = this.keys.length - 1;
-        while (i >= 0 && key < this.keys[i]) {
-            this.keys[i + 1] = this.keys[i];
+        i = this.data.length - 1;
+        while (i >= 0 && key < this.data[i].key) {
+            this.data[i + 1] = this.data[i];
             i--;
         }
 
-        this.keys[i + 1] = key;
+        this.data[i + 1] = {key: key, payload: payload};
     } else {
         i = 0;
-        while (i <= this.keys.length - 1 && key > this.keys[i]) i++;
+        while (i <= this.data.length - 1 && key > this.data[i].key) i++;
         var child = this.children[i];
         if (child.isFull()) {
             this.splitChild(i);
-            if (key > this.keys[i]) i++;
+            if (key > this.data[i].key) i++;
             child = this.children[i];
         }
 
@@ -68,17 +82,17 @@ BTreeNode.prototype.insertNonFull = function(key) {
 
 BTreeNode.prototype.splitChild = function(childIndex) {
     var i;
-    var right = new BTreeNode(this.tree);
+    var right = new BTreeNode(this.tree, this);
     var left = this.children[childIndex];
     assert(left.isFull(), "child to split must be full");
 
-    // Insert key to this node
-    i = this.keys.length - 1;
+    // Insert data to this node
+    i = this.data.length - 1;
     while (i >= childIndex /* the target new key position */) {
-        this.keys[i + 1] = this.keys[i];
+        this.data[i + 1] = this.data[i];
         i--;
     }
-    this.keys[childIndex] = left.keys[this.tree.minDegree - 1];
+    this.data[childIndex] = left.data[this.tree.minDegree - 1];
 
     // Insert right child to this node
     i = this.children.length - 1;
@@ -88,14 +102,14 @@ BTreeNode.prototype.splitChild = function(childIndex) {
     }
     this.children[childIndex + 1] = right;
 
-    // copy keys to right child
+    // copy data to right child
     for (i = 0; i < this.tree.minDegree - 1; i++) {
-        right.keys[i] = left.keys[i + this.tree.minDegree];
+        right.data[i] = left.data[i + this.tree.minDegree];
     }
 
-    // delete copied keys in left child. This includes 1 key copied to the parent and
+    // delete copied data in left child. This includes 1 key copied to the parent and
     // minDegree - 1 keys copied to the right child.
-    left.keys.splice(this.tree.minDegree -1 /* position to remove */,
+    left.data.splice(this.tree.minDegree -1 /* position to remove */,
                      this.tree.minDegree /* number of keys to remove */);
 
     if (!left.isLeaf()) {
@@ -111,6 +125,68 @@ BTreeNode.prototype.splitChild = function(childIndex) {
 
     assert.strictEqual(left.getDegree(), this.tree.minDegree, "unexpected left child degree");
     assert.strictEqual(right.getDegree(), this.tree.minDegree, "unexpected right child degree");
+};
+
+/**
+ * Get the first key in this node's subtree.
+ * @return {Cursor} The cursor pointing to the first key
+ */
+BTreeNode.prototype.getFirst = function() {
+    if (this.isLeaf()) {
+        return new Cursor(this, 0);
+    }
+
+    return this.children[0].getFirst();
+};
+
+/*
+ * @param {BTreeNode} btreeNode The node it's pointing to
+ * @param {int} iKey the key index
+ */
+function Cursor(btreeNode, iKey) {
+    this.node = btreeNode;
+    this.iKey = iKey;
+}
+
+Cursor.prototype.getData = function() {
+    return this.node.data[this.iKey];
+};
+
+/**
+ * Move to the next node in order
+ * @return {bool} if there is next key or not
+ */
+Cursor.prototype.moveNext = function() {
+    if (this.node.isLeaf()) {
+        if (this.iKey === this.node.data.length - 1) {
+            var current = this.node;
+            // TODO: implement parent
+            while (current.parent) {
+                // get `current`'s index in its parent's children array
+                var iCurrent = current.parent.children.indexOf(current);
+                if (iCurrent !== current.parent.children.length - 1) {
+                    this.node = current.parent;
+                    this.iKey = iCurrent;
+                    return true;
+                } else {
+                    // `current` is the last child in its parent. Further
+                    // look up.
+                    current = current.parent;
+                }
+            }
+            
+            // There is no larger key in the tree.
+            return false;
+        } else {
+            this.iKey++;
+            return true;
+        }
+    } else {
+        var first = this.node.getFirst();
+        this.node = first.node;
+        this.iKey = first.iKey;
+        return true;
+    }
 };
 
 module.exports.BTree = BTree;

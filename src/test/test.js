@@ -4,7 +4,7 @@ var util = require('util');
 var BTree = require('../btree.js').BTree;
 var assert = require('assert');
 
-if ( global.v8debug) {
+if (global.v8debug) {
         global.v8debug.Debug.setBreakOnException(); // enable it, global.v8debug is only defined when the --debug or --debug-brk flag is set
 }
 
@@ -60,7 +60,7 @@ describe('Populating BTree', function() {
     });
 
     it('can find inserted keys', function() {
-        var key = tree.root.search('his');
-        assert(key === 'his');
+        var cursor = tree.root.search('his');
+        assert.strictEqual(cursor.getData().key, 'his', 'unexpected found key');
     });
 });
