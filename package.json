@@ -4,8 +4,7 @@
   "description": "",
   "main": "lib/btree.js",
   "scripts": {
-    "test": "mocha",
-    "gulp": "gulp"
+    "test": "mocha"
   },
   "author": "kflu",
   "license": "ISC",

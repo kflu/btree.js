@@ -4,7 +4,7 @@ var gutil = require('gulp-util');
 
 gulp.task('jsdoc', function() {
     gutil.log('Building jsdoc');
-    exec('jsdoc -r -p src');
+    exec('jsdoc -r -p lib');
 });
 
 gulp.task('default', function() {
