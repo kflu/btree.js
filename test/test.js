@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var BTree = require('../btree.js').BTree;
+var BTree = require('../lib/btree.js').BTree;
 var assert = require('assert');
 
 if (global.v8debug) {
