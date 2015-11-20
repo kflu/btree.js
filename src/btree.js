@@ -1,9 +1,22 @@
 var assert = require('assert');
+
+/**
+ * BTree
+ * @constructor
+ * @param {int} minDegree minimum degree
+ *
+ */
 function BTree(minDegree) {
     this.minDegree = minDegree;
     this.root = new BTreeNode(this, null);
 }
 
+/**
+ * Insert data into the BTree
+ * @param {Object} key the key to insert
+ * @param {Object} payload the payload to insert
+ *
+ */
 BTree.prototype.insert = function(key, payload) {
     if (this.root.isFull()) {
         // create a new root. Properly update the parent-child
@@ -20,12 +33,20 @@ BTree.prototype.insert = function(key, payload) {
     this.root.insertNonFull(key, payload);
 };
 
+/**
+ * Search for a key. This method will return as soon as a key is found,
+ * even if there can be duplicated keys in the tree.
+ * @param {Object} key the key to search
+ * @return {Cursor} the cursor to the found data
+ *
+ */
 BTree.prototype.search = function(key) {
     return this.root.search(key);
 };
 
 /**
  * BTree node constructor
+ * @constructor
  * @param {BTree} tree the btree containing this node
  * @param {BTreeNode} parent the parent of this node
  */
@@ -62,7 +83,8 @@ BTreeNode.prototype.search = function(key) {
 /**
  * Insert. If the key is equal to an existing key, the new key
  * is always inserted _before_ the existing key.
- *
+ * @param {Object} key the key to insert
+ * @param {Object} payload the payload to insert
  */
 BTreeNode.prototype.insertNonFull = function(key, payload) {
     assert(!this.isFull(), "this node should not be full");
@@ -148,7 +170,9 @@ BTreeNode.prototype.getFirst = function() {
     return this.children[0].getFirst();
 };
 
-/*
+/**
+ * The curosr points to a particular key in a {@link BTreeNode}
+ * @constructor
  * @param {BTreeNode} btreeNode The node it's pointing to
  * @param {int} iKey the key index
  */
