@@ -11,5 +11,8 @@
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-util": "^3.0.7"
+  },
+  "dependencies": {
+    "chai": "^3.4.1"
   }
 }
