@@ -4,13 +4,16 @@
   "description": "",
   "main": "lib/btree.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "gulp": "gulp"
   },
   "author": "kflu",
   "license": "ISC",
   "devDependencies": {
     "gulp": "^3.9.0",
-    "gulp-util": "^3.0.7"
+    "gulp-util": "^3.0.7",
+    "jsdoc": "^3.4.0",
+    "mocha": "^2.3.4"
   },
   "dependencies": {
     "chai": "^3.4.1"
