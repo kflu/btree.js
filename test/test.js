@@ -39,11 +39,6 @@ describe('BTree', function() {
         it('should not be full', function() { assert.strictEqual(t.root.isFull(), false); });
     });
 
-    /*
-     * FIXME: These tests fail because if there're duplicated keys, the search can land on
-     * a key in the middle. So the cursor needs to go both directions to find all dups.
-     * Not really a btree implementation problem, but the expection was wrong.
-     */
     describe('search', function() {
         var tree = new BTree(2);
         tree.insert(1, "1a");
@@ -69,7 +64,7 @@ describe('BTree', function() {
         };
 
         it('should find the first object', function() {
-            cursor = tree.search(1);
+            cursor = tree.searchFirst(1);
             assert(cursor !== null, 'cursor !== null');
             assert(dataeq(cursor.getData(), {key: 1, payload: '1a'}, logdata));
         });
@@ -101,23 +96,19 @@ describe('BTree', function() {
 
             result = cursor.moveNext();
             assert(result === false, 'moveNext() === false');
-            assert(result === true, 'moveNext() === true');
             assert(dataeq(cursor.getData(), {key: 3, payload: '3a'}, logdata));
         });
 
         it('should find the last object', function() {
-            cursor = tree.search(3);
-            assert.strictEqual(cursor, true, "cursor");
+            cursor = tree.searchFirst(3);
             assert(dataeq(cursor.getData(), {key: 3, payload: '3a'}, logdata));
         });
 
-        it('can find the data in the middle, and cursor can adcance', function() {
-            cursor = tree.search(2);
-            assert.strictEqual(cursor, true, "cursor");
+        it('can find the data in the middle, and cursor can advance', function() {
+            cursor = tree.searchFirst(2);
             assert(dataeq(cursor.getData(), {key: 2, payload: '2a'}, logdata));
 
             result = cursor.moveNext();
-            assert.strictEqual(cursor, true, "cursor");
             assert(dataeq(cursor.getData(), {key: 2, payload: '2b'}, logdata));
         });
     });
