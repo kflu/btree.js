@@ -111,6 +111,11 @@ describe('BTree', function() {
             result = cursor.moveNext();
             assert(dataeq(cursor.getData(), {key: 2, payload: '2b'}, logdata));
         });
+
+        it('can find using the key transformer', function() {
+            cursor = tree.searchFirst(4, function (x) { return 2 * x; });
+            assert(dataeq(cursor.getData(), {key: 2, payload: '2a'}, logdata));
+        });
     });
 });
 

@@ -1,5 +1,5 @@
 # btree.js
 
 ## TODOs
-- Add visualization utility
-- Add more tests
+
+- Think about data access layer abstraction
