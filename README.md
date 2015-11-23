@@ -3,27 +3,14 @@
 ## TODOs
 
 - Think about data access layer abstraction
+    - ~~`Cursor` constructor changed~~
+    - ~~`provider.getChild()` should really be `load()`~~
+    - ~~`Cursor.node` is no longer the loaded node~~
+    - ~~`createChild` -> `createNode`~~
+    - Some callbacks with a node need to save the node when done.
 - Implement deletion
 - trees can specify a key comparison for JavaScript cannot override comparison operators
 
-## Designing Providers
+###Callbacks with a node instance to save when done
 
-    provider.load(this.children[i], function(childNode) {
-        // use child node here...
-    });
-
-Since this is a async fashioin, all things need to be asyn for good. E.g., `node.search`:
-
-    node.search(key, function(result) {
-        // use the result...
-    })
-
-Internally `search` does:
-
-    node.prototype.search = function(key, cb) {
-        // ...
-        provider.load(this.children[i], function(childnode) {
-            // continue search, if found, call the callback:
-            cb(result);
-        })
-    };
+- How to handle error along the way? seems to need some sort of "finally"
