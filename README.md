@@ -14,3 +14,4 @@
 ###Callbacks with a node instance to save when done
 
 - How to handle error along the way? seems to need some sort of "finally"
+    - transaction ? Log replay at btree level?
