@@ -22,3 +22,5 @@
 - https://www.sqlite.org/threadsafe.html
 - http://boilerbay.com/infinitydb/TheDesignOfTheInfinityDatabaseEngine.htm
     - Section "Background on Problems with B-Tree Concurrency"
+
+Maybe I shouldn't try to handle concurrency at BTree level, but rely on higher level applications to perform proper locking.
