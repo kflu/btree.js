@@ -15,3 +15,10 @@
 
 - How to handle error along the way? seems to need some sort of "finally"
     - transaction ? Log replay at btree level?
+
+###Locking
+
+- https://en.wikipedia.org/wiki/Lock_(database)
+- https://www.sqlite.org/threadsafe.html
+- http://boilerbay.com/infinitydb/TheDesignOfTheInfinityDatabaseEngine.htm
+    - Section "Background on Problems with B-Tree Concurrency"
