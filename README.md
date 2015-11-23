@@ -8,10 +8,11 @@
     - ~~`Cursor.node` is no longer the loaded node~~
     - ~~`createChild` -> `createNode`~~
     - ~~Some callbacks with a node need to save the node when done.~~
+    - do all the above for tests. fix tests.
 - Implement deletion
 - trees can specify a key comparison for JavaScript cannot override comparison operators
 
-###Callbacks with a node instance to save when done
+### Callbacks with a node instance to save when done
 
 I should not handle failures at btree level, but rely on higher level applications
 to properly reply the logs.
@@ -19,7 +20,7 @@ to properly reply the logs.
 - How to handle error along the way? seems to need some sort of "finally"
     - transaction ? Log replay at btree level?
 
-###Locking
+### Locking
 
 I shouldn't try to handle concurrency at BTree level, but rely on higher level applications to perform proper locking.
 
