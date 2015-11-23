@@ -3,14 +3,44 @@ var path = require('path');
 var util = require('util');
 var BTree = require('../lib/btree.js').BTree;
 var assert = require('assert');
+var Provider = require('../lib/InMemoryProvider');
+var createTree = require('../lib/btreep.js').createTree;
 
 if (global.v8debug) {
         global.v8debug.Debug.setBreakOnException(); // enable it, global.v8debug is only defined when the --debug or --debug-brk flag is set
 }
 
+describe('new test', function () {
+    it('', function (done) {
+        createTree(2, new Provider()).then(function (tree) {
+            console.log('tree created ');
+            console.log("inserting 1a");
+            return tree.insertP(1, '1a')
+            .then(function () {
+                console.log("inserting 1b");
+                return tree.insertP(1, '1b');
+            })
+            .then(function () {
+                console.log("inserting 2a");
+                return tree.insertP(2, '2a');
+            })
+            .then(function () {
+                return tree.insertP(3, '3b');
+            })
+            .then(function () {
+                console.log('tree population finished. tree: ' + util.inspect(tree, {depth: null, color: true}));
+                done();
+            }, function (err) {
+                done(err);
+            });
+        });
+    });
+});
+
+/*
 describe('BTree', function() {
     describe('isFull', function() {
-        var t = new BTree(2);
+        var t = null;
         var i = 0;
 
         beforeEach(function() {
@@ -145,3 +175,4 @@ describe('Populating BTree', function() {
         assert.strictEqual(cursor.getData().key, 'his', 'unexpected found key');
     });
 });
+*/
