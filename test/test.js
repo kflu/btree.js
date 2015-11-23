@@ -25,7 +25,16 @@ describe('new test', function () {
                 return tree.insertP(2, '2a');
             })
             .then(function () {
+                return tree.insertP(2, '2b');
+            })
+            .then(function () {
+                return tree.insertP(3, '3a');
+            })
+            .then(function () {
                 return tree.insertP(3, '3b');
+            })
+            .then(function () {
+                return tree.insertP(3, '3c');
             })
             .then(function () {
                 console.log('tree population finished. tree: ' + util.inspect(tree, {depth: null, color: true}));
